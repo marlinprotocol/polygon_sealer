@@ -3,7 +3,6 @@ package comms
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/marlinprotocol/polygon_sealer/analytics"
 	log "github.com/sirupsen/logrus"
@@ -16,21 +15,18 @@ func InitHttpListener(listenAddr string) chan *CandidateBlock {
 }
 
 func serveHttp(listenAddr string, ch chan *CandidateBlock) {
-	analyticsBody := analytics.Analytics{
-		Subject: "recieved candidate blocks",
-		Count:   1,
-	}
 	http.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		var cbp CandidateBlockPayload
 		err := json.NewDecoder(r.Body).Decode(&cbp)
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusBadRequest)
-			log.Error("Bad CB recv", "error", err.Error())
+			log.Error("Bad CB recv ", "error ", err.Error())
 			return
 		}
 		cb, profit, err := DecodeAsCB(cbp)
 		if err != nil {
-			log.Error("Bad CB decode", "error", err)
+			log.Error("Bad CB decode ", "error ", err)
+			return
 		}
 
 		ch <- &CandidateBlock{
@@ -38,20 +34,8 @@ func serveHttp(listenAddr string, ch chan *CandidateBlock) {
 			Profit: profit,
 		}
 
-		analytics.AnalyticsChan <- &analyticsBody
+		analytics.AnalyticsChan <- &analytics.RecvCB
 	})
 	go http.ListenAndServe(listenAddr, nil)
 	log.Info("Listening for candidates on [", listenAddr, "]")
-}
-
-func showAnalytics(analytics chan bool) {
-	for {
-		time.Sleep(10 * time.Second)
-		count := 0
-		for len(analytics) > 0 {
-			count++
-			<-analytics
-		}
-		log.Info("Listener: Received ", count, " candidate blocks in last 10s")
-	}
 }

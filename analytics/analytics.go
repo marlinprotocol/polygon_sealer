@@ -1,6 +1,7 @@
 package analytics
 
 import (
+	"sort"
 	"strconv"
 	"time"
 
@@ -13,12 +14,13 @@ type Analytics struct {
 }
 
 var AnalyticsChan chan *Analytics
+var RecvCB = Analytics{Subject: "CB recv", Count: 1}
 
 func ShowAnalytics(secs int) {
 	log.Info("Started show analytics")
 	for {
 		time.Sleep(time.Duration(secs) * time.Second)
-		aMap := map[string]int{"recieved candidate blocks": 0, "sealed blocks": 0, "sent sealed blocks": 0}
+		aMap := map[string]int{"CB recv": 0}
 		for len(AnalyticsChan) > 0 {
 			a := <-AnalyticsChan
 			if val, ok := aMap[a.Subject]; ok {
@@ -27,9 +29,16 @@ func ShowAnalytics(secs int) {
 				aMap[a.Subject] = a.Count
 			}
 		}
+		keys := make([]string, len(aMap))
+		i := 0
+		for k := range aMap {
+			keys[i] = k
+			i++
+		}
+		sort.Strings(keys)
 		analyticsString := ""
-		for k, v := range aMap {
-			analyticsString += "[" + k + ": " + strconv.Itoa(v) + "] "
+		for _, k := range keys {
+			analyticsString += "[" + k + ": " + strconv.Itoa(aMap[k]) + "] "
 		}
 		log.Info("Analytics (", secs, "secs): ", analyticsString)
 	}

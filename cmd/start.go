@@ -40,7 +40,7 @@ var startCmd = &cobra.Command{
 
 		// Initialise analytics
 		analytics.AnalyticsChan = make(chan *analytics.Analytics, 10000)
-		go analytics.ShowAnalytics(10)
+		go analytics.ShowAnalytics(5)
 
 		// Initialise communication routines
 		cbChan := comms.InitHttpListener(listenAddr)
