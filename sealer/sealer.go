@@ -66,8 +66,9 @@ func (s *Sealer) sealerRoutine() {
 		copy(header.Extra[len(header.Extra)-extraSeal:], sighash)
 
 		delay := time.Unix(int64(block.Header.Time), 0).Sub(time.Now())
-		// To account for further delay in sending sealed block
-		delay -= 150 * time.Millisecond
+		// Reduce wait delay by 60ms
+		// To account for delay in sending sealed block
+		delay -= 60 * time.Millisecond
 
 		select {
 		case <-s.stopCh:
