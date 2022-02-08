@@ -14,13 +14,13 @@ type Analytics struct {
 }
 
 var AnalyticsChan chan *Analytics
-var RecvCB = Analytics{Subject: "CB recv", Count: 1}
+var RecvCB = Analytics{Subject: "CB..Recv", Count: 1}
 
 func ShowAnalytics(secs int) {
 	log.Info("Started show analytics")
 	for {
 		time.Sleep(time.Duration(secs) * time.Second)
-		aMap := map[string]int{"CB recv": 0}
+		aMap := map[string]int{"CB..Recv": 0}
 		for len(AnalyticsChan) > 0 {
 			a := <-AnalyticsChan
 			if val, ok := aMap[a.Subject]; ok {

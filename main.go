@@ -23,7 +23,7 @@ func init() {
 		ForceColors:      false,
 		DisableColors:    false,
 		TimestampFormat:  "2006-01-02 15:04:05",
-		DisableTimestamp: true,
+		DisableTimestamp: false,
 	})
 }
 
